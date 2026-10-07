@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>ARIA 101 kompakt - Praktische Beispiele</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./css/jens-white.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/atom-one-light.css" />
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="<!--s-->" data-separator-vertical="<!--v-->">
+          <textarea data-template>
+            
+
+# ARIA 101 kompakt - Praktische Beispiele
+Jens Grochtdreis 
+
+<!--s-->
+
+## Eines vorweg
+
+Wir haben **keine** Chance, einen Screenreader in irgendeiner Weise zu erkennen und unseren Code darauf anzupassen.
+
+Das wird sich nie ändern.
+
+<!--s-->
+
+## Wichtige Grundsätze - Teil 1
+
+- Screenreadernutzer benötigen die gleichen Infos wie Sehende.
+- Alle interaktiven Elemente müssen mit der Tastatur bedienbar sein.
+- Der Tastaturfokus muss deutlich sichtbar sein.
+- Wenn eine Aktion passiert, die für Sehende sichtbar ist, müssen wir Screenreadernutzer informieren.
+
+<!--s-->
+
+## Wichtige Grundsätze - Teil 2
+
+- Semantisch korrektes HTML ist die Grundlage.
+- Manchmal genügt das nicht und dann müssen Infos (Semantik) per ARIA hinzugefügt werden.
+- ARIA ist eine **Ergänzung** zu HTML.
+- ARIA **repariert nicht** HTML.
+
+<!--s-->
+
+## Code-Beispiele
+
+<!--v-->
+
+### Das passende Element nutzen
+
+Das ist korrekt:
+```html
+<button>Klick mich</button>
+<h2>Ich bin eine Überschrift</h2>
+```
+
+Das ist falsch:
+```html
+<div role="button" tabindex="0">Klick mich</div>
+<div role="heading" aria-level="2">Ich möchte eine Überschrift sein!</div>
+```
+<!--v-->
+
+### Nicht unnötig die Semantik eines Elements ändern
+
+Das ist falsch:
+```html
+<button role="radio">Auswahloption 1</button>
+```
+
+Das ist korrekt:
+```html
+<div>
+  <label for="radio1">Auswahloption 1</label>
+  <input type="radio" name="radiogaga" id="radio1">
+</div>
+```
+<!--v-->
+
+### Noch ein Beispiel
+
+Möglicherweise macht man intuitiv den folgenden Fehler, um ein ``DIV`` zu sparen:
+
+```html
+<!-- FALSCH -->
+<h2 role="tab">Tolle Überschrift</h2>
+
+<!-- RICHTIG -->
+<div role="tab">
+  <h2>Tolle Überschrift</h2>
+</div>
+```
+<!--s-->
+
+## Verstecken
+
+| Code | Bedeutung |
+|:-------|:--------|
+| ``aria-hidden="true"`` | versteckt das Element vor dem Screenreader. Es hat keine visuelle Auswirkung. |
+| ``class="sr-only"`` | Versteckt das Element visuell, aber es bleibt für den Screenreader zugänglich. |
+| ``display: none`` | versteckt das Element visuell und vor dem Screenreader. |
+
+<!--s-->
+
+## Der Accessibility Tree
+
+Das DOM ist die HTML-Repräsentation des Inhalts für die visuelle Darstellung. Für Screenreader ist das DOM nicht
+ausreichend, deshalb gibt es den Accessibility Tree.
+
+1. Rolle (Was ist das?)
+2. Name (Wie sage ich es an?)
+3. Beschreibung (Optionale Beschreibung über ein Element)
+4. Status (state) (Was ist der Status/Zustand?)
+
+<!--v-->
+
+### ARIA Rollen - eine Auswahl
+
+- alert
+- alertdialog
+- tab
+- tablist
+- tabpanel
+- progressbar
+- slider
+- button
+
+[Eine vollständige Übersicht gibt es bei
+MDN](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles)
+
+<!--v-->
+
+### States and properties - eine Auswahl
+
+- aria-busy
+- aria-controls
+- aria-current
+- aria-describedby
+- aria-disabled
+- aria-expanded
+- aria-errormessage
+- aria-haspopup
+- aria-hidden
+- aria-labelledby
+- aria-invalid
+- aria-required
+- aria-valuemax
+- aria-valuemin
+
+[Eine vollständige Übersicht gibt es bei
+MDN](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes)
+
+<!--s-->
+
+## Der **Accessible Name**
+
+Wie wird ein Inhalt/Bedienelement an den Screenreader kommuniziert?
+
+![Screenshot des Accessibility-Tabs der Chrome-Devtools](../pictures/a11y/accessible-name-described-by.png)
+
+<!--v-->
+
+### Techniken für zugängliche Namen
+
+| Priorität | Technik | Beschreibung |
+| :--- | :---|:-----|
+| **1** | **`aria-labelledby`** | Eine oder mehrere ID-Referenzen zu Elementen auf der Seite. Der Textinhalt der
+referenzierten Elemente wird verkettet, um den zugänglichen Namen zu berechnen.<br>Die
+Referenzen identifizieren typischerweise sichtbaren Text auf dem Bildschirm in visueller Nähe zum Steuerelement. Es
+können aber auch unsichtbare Elemente referenziert werden. |
+| **2** | **`aria-label`** | Der Textinhalt des Attributs `aria-label` sitzt direkt am Element. |
+| **3** | **Textinhalt** | Der Textinhalt eines Elements, sei er visuell sichtbar oder nicht. |
+| **4** | **`title`** | Wenn keine andere Quelle für einen zugänglichen Namen gefunden wird und das Element ein
+`title`-Attribut besitzt, wird der Inhalt des `title`-Attributs verwendet, um den zugänglichen Namen zu definieren.
+Title-Attribute sind fast ausschließlich bei iframes sinnvoll.|
+
+<!--v-->
+
+### Entscheidungsbaum bei Bildern
+
+1. aria-labelledby
+2. aria-label
+3. alt
+4. title
+5. Wenn es weder alt- noch title-Attribut gibt, und das Bild in einem ``figure``-Element ist, das nur das Bild und eine
+``figcaption`` enthält, dann verwende den Textinhalt der ``figcaption`` als zugänglichen Namen.
+6. Trifft all das nicht zu, hat das Bild keinen accessible name.
+
+<!--v-->
+
+## Beispiele mit Buttons
+
+````html
+<button type="button">
+  <svg>
+    <use xlink:href="#cancel"></use>
+  </svg>
+  <span class="sr-only">Delete</span>
+</button>
+````
+
+````html
+<button aria-labelledby="label-delete-button" type="button">
+  <svg>
+    <use xlink:href="#cancel"></use>
+  </svg>
+</button>
+<span class="sr-only" id="label-delete-button">Ich bin ein externes Label</span>
+````
+[Diese Seite](https://es-d-1870359320260703-019f1e0a-8b8b-7433-82dd-ba34bd1c31bb.codepen.dev/) mit dem Accessibility-Tab
+der Devtools anschauen.
+
+<!--v-->
+
+### Accessibility-Tab der Devtools
+
+![Screenshot des Accessibility-Tabs der Chrome-Devtools](../pictures/a11y/devtools-1.png)
+![Screenshot des Accessibility-Tabs der Chrome-Devtools](../pictures/a11y/devtools-2.png)
+![Screenshot des Accessibility-Tabs der Chrome-Devtools](../pictures/a11y/devtools-3.png)
+
+<!--s-->
+
+## Korrekte Semantik ist wichtig
+
+<!--v-->
+
+### Listen sind hilfreich
+
+guter Code
+
+```html
+<ul>
+  <li><button>Klick mich</button></li>
+  <li><button>Klick mich ebenfalls</button></li>
+  <li><button>Du weisst schon...</button></li>
+</ul>
+```
+weniger guter Code
+```html
+<ul>
+  <li>
+    <button>Klick mich</button>
+    <button>Klick mich ebenfalls</button>
+    <button>Du weisst schon...</button>
+  </li>
+</ul>
+```
+<!--v-->
+
+### So darf ein Button nicht strukturiert sein
+
+````html
+<button type="button">
+  <div>
+    <div><time></time></div>
+    <div><span></span></div>
+  </div>
+  <div><img></div>
+  <div>
+    <h4><span></span></h4>
+    <span></span>
+    <span></span>
+  </div>
+  <span aria-hidden="true">
+    <svg aria-hidden="true" focusable="false"></svg>
+  </span>
+</button>
+````
+<!--v-->
+
+### So ist es besser
+
+````html
+<button type="button">
+  <span>
+    <span><time></time></span>
+    <span><span></span></span>
+  </span>
+  <span><img></span>
+  <span>
+    <span><span></span></span>
+    <span></span>
+    <span></span>
+  </span>
+  <span aria-hidden="true">
+    <svg aria-hidden="true" focusable="false"></svg>
+  </span>
+</button>
+````
+<!--v-->
+
+### Mehr Beispiele
+
+```html
+<!-- FALSCH -->
+<span role="button">Formular absenden</span>
+<!-- RICHTIG -->
+<button type="submit">Formular absenden</button>
+```
+```html
+<!-- Falsch -->
+<span role="checkbox">Falsche Checkbox</span>
+<!-- RICHTIG -->
+<label for="y">Echte Checkbox</label>
+<input type="checkbox" name="y" id="y">
+```
+```html
+<!-- FALSCH -->
+<span role="link" data-target="http://google.com">Falscher Link</span>
+<!-- auch FALSCH -->
+<a href="http://google.com" role="link">Übermotivierter, echter Link</a>
+<!-- RICHTIG -->
+<a href="http://google.com">Echter Link</a>
+```
+
+<!--s-->
+
+## Das war's
+
+![Donald Duck verbeugt sich vor klatschenden Pinguinen](images/klatsch-klatsch-klatsch.jpg)
+
+<div class="list-col">
+  <ul>
+    <li><a href="https://grochtdreis.de">Grochtdreis.de</a></li>
+    <li><a href="https://css-weblog.de">CSS-Weblog.de</a></li>
+    <li><a href="https://jens.cooking">Meine Kochrezepte</a></li>
+    <li><a href="https://mastodon.social/@jensgro">@jensgro@mastodon.social</a></li>
+  </ul>
+</div>
+
+          </textarea>
+        </section>
+      </div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+    <script src="./mermaid/dist/mermaid.min.js"></script>
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        highlight: {
+          highlightOnLoad: false
+        },
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"transition":"slide","css":"jens-white.css","static":"_static"}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+      Reveal.addEventListener('ready', function (event) {
+        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const hlp = Reveal.getPlugin('highlight');
+        blocks.forEach(hlp.highlightBlock);
+      });
+    </script>
+
+    <script>
+      const mermaidOptions = extend({ startOnLoad: false }, {});
+      mermaid.startOnLoad = false;
+      mermaid.initialize(mermaidOptions);
+      const cb = function (event) {
+        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
+        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+      }
+      Reveal.addEventListener('ready', cb);
+      Reveal.addEventListener('slidetransitionend', cb);
+    </script>
+  </body>
+</html>
