@@ -1,10 +1,9 @@
-# Reveal-Jens
+# Sammlung von Präsentationen zu Barrierefreiheit
 
-Auf der Basis eines Ergebnisses von reveal-md (das nicht mehr weiterentwickelt wird) existiert diese kleine Vorlage.
+Alle Präsentationen befinden sich in separaten HTML-Dateien. Diese sind auch ohne Server direkt im Browser aufrufbar. Basis ist eine Transformation von Markdown in HTML. Der Text der Präsentation liegt in Markdown innerhalb der jeweiligen HTML-Datei vor.
 
-Alles ist so vorbereitet, dass mit normalem Markdown innerhalb der HTML-Datei geschrieben werden kann.
+## WAI-ARIA
 
-Neue Seiten werden mit ``<!--s-->`` für neue Kapitel und ``<!--v-->`` für neue Seiten innerhalb der Kapitel erstellt.
+Die Datei wai-aria.html enthält eine kurze Präsentation zu WAI-ARIA.
 
-Alle notwendigen Dateien existieren lokal. Die beiden persönlichen CSS-Dateien könnten evtl. noch einmal überarbeitet werden. Theoretisch könnte daraus ein darkmode-Theme werden.
 
